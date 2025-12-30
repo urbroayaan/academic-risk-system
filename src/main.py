@@ -4,6 +4,7 @@ from risk_score import total_risk_score
 from explanations import risk_level, generate_explanation
 from recommendations import recommend_actions
 from ml_features import extract_features
+from ml_dataset import build_ml_dataset
 
 def main():
     df = load_scores(r"C:\Users\nanda\OneDrive\Desktop\academic-risk-system\data\student_scores.csv")
