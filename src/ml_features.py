@@ -4,26 +4,18 @@ def calculate_volatility(scores):
     scores = pd.Series(scores)
     return scores.std()
 
-
 def calculate_slope(scores):
     scores = pd.Series(scores)
     if len(scores) < 2:
         return 0
 
-    first = scores.iloc[0]
-    last = scores.iloc[-1]
-    steps = len(scores) - 1
+    return (scores.iloc[-1] - scores.iloc[0]) / (len(scores) - 1)
 
-    return (last - first) / steps
+def extract_features(past_scores):
+    past_scores = pd.Series(past_scores)
 
-
-def extract_features(scores, has_decline, avg_score, risk_score):
-    scores = pd.Series(scores)
-    
     return {
-        "avg_score": avg_score,
-        "has_decline": int(has_decline),
-        "risk_score": risk_score,
-        "volatility": calculate_volatility(scores),
-        "slope": calculate_slope(scores)
+        "avg_score": past_scores.mean(),
+        "volatility": calculate_volatility(past_scores),
+        "slope": calculate_slope(past_scores),
     }
