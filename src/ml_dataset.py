@@ -1,32 +1,26 @@
 import pandas as pd
 from ml_features import extract_features
-from explanations import risk_level
-from risk_score import total_risk_score
-from risk_signals import declining_trend
 
-def build_ml_dataset(df):
+def build_ml_dataset(df, cutoff_week=4):
     rows = []
 
     for student in df["student"].unique():
-        student_data = df[df["student"] == student]
-        scores = student_data.sort_values("week")["score"]
+        student_data = df[df["student"] == student].sort_values("week")
 
-        avg_score = scores.mean()
-        has_decline = declining_trend(scores)
-        risk_score = total_risk_score(has_decline, avg_score)
+        past = student_data[student_data["week"] <= cutoff_week]
+        future = student_data[student_data["week"] > cutoff_week]
 
-        level = risk_level(risk_score)
-        label = 1 if risk_score >= 40 else 0
+        if len(past) < 3 or len(future) < 1:
+            continue
 
+        past_scores = past["score"]
+        future_scores = future["score"]
 
-        features = extract_features(
-            scores=scores,
-            has_decline=has_decline,
-            avg_score=avg_score,
-            risk_score=risk_score
-        )
+        features = extract_features(past_scores)
+
+        label = int(future_scores.mean() < past_scores.mean())
 
         features["label"] = label
         rows.append(features)
-    
+
     return pd.DataFrame(rows)
